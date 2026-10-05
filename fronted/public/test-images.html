@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Image Test</title>
+    <style>
+        img { width: 200px; margin: 10px; border: 2px solid #ccc; }
+        .working { border-color: green; }
+        .broken { border-color: red; }
+    </style>
+</head>
+<body>
+    <h1>Image Loading Test</h1>
+    <div>
+        <h2>Test 1: Direct path from public folder</h2>
+        <img src="/Images/images1.jpg" alt="Image 1" onload="this.className='working'" onerror="this.className='broken'">
+        <img src="/Images/images2.jpg" alt="Image 2" onload="this.className='working'" onerror="this.className='broken'">
+        <img src="/Images/images3.jpg" alt="Image 3" onload="this.className='working'" onerror="this.className='broken'">
+        <img src="/Images/images4.jpg" alt="Image 4" onload="this.className='working'" onerror="this.className='broken'">
+        <img src="/Images/images5.jpg" alt="Image 5" onload="this.className='working'" onerror="this.className='broken'">
+    </div>
+    <script>
+        console.log('Test page loaded. Check images above - green border = working, red = broken');
+    </script>
+</body>
+</html>

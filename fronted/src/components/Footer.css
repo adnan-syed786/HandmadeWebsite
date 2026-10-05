@@ -1,0 +1,31 @@
+.contact { padding: 72px 10% 0; background: #202a27; color: #fff; }
+.footer-inner { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1.5fr; gap: 48px; max-width: 1280px; margin: 0 auto; padding-bottom: 58px; }
+.footer-logo { display: inline-block; padding: 10px 14px; background: #fff; }
+.first-info img { display: block; width: 138px; height: auto; }
+.footer-intro, .footer-newsletter > p { max-width: 280px; margin: 22px 0; color: #c9d0cc; font-size: 14px; line-height: 1.8; }
+.contact-info h4, .footer-inner h4 { margin-bottom: 22px; color: #f1c76b; font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+.second-info, .third-info { display: flex; flex-direction: column; align-items: flex-start; gap: 13px; }
+.footer-inner a { color: #c9d0cc; font-size: 14px; transition: color .2s ease, transform .2s ease; }
+.footer-inner a:hover { color: #f1c76b; transform: translateX(3px); }
+.social-icon { display: flex; gap: 10px; margin-top: 23px; }
+.social-icon a { display: grid; width: 34px; height: 34px; place-items: center; border: 1px solid #53625c; border-radius: 50%; }
+.social-icon i { color: #fff; font-size: 17px; }
+.social-icon a:hover { background: #f1c76b; border-color: #f1c76b; transform: translateY(-3px); }
+.social-icon a:hover i { color: #202a27; }
+.subscribe-form { display: flex; max-width: 340px; border-bottom: 1px solid #809089; }
+.subscribe-form input { width: 100%; padding: 13px 0; border: 0; outline: 0; background: transparent; color: #fff; font: inherit; }
+.subscribe-form input::placeholder { color: #9eaaa4; }
+.subscribe-form button { width: 40px; border: 0; background: transparent; color: #f1c76b; font-size: 22px; cursor: pointer; }
+.subscribe-success { color: #f1c76b !important; font-size: 13px !important; }
+.footer-bottom { display: flex; justify-content: space-between; gap: 16px; padding: 18px 0; border-top: 1px solid #394743; color: #9eaaa4; font-size: 12px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+@media (max-width: 850px) {
+    .contact { padding: 58px 7% 0; }
+    .footer-inner { grid-template-columns: repeat(2, 1fr); gap: 42px 28px; }
+}
+
+@media (max-width: 520px) {
+    .footer-inner { grid-template-columns: 1fr; gap: 34px; }
+    .footer-bottom { flex-direction: column; }
+}
