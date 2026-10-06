@@ -58,4 +58,9 @@ function prepareProductsForImport(productsData) {
   });
 }
 
-module.exports = { prepareProductsForImport };
+module.exports = {
+  prepareProductsForImport,
+  listProductImageDirectories,
+  findProductImageDirectory,
+  imagesFromDirectory,
+};
