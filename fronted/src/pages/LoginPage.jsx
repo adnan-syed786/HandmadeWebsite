@@ -1,33 +1,43 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import './LoginPage.css'; // legacy styles kept if needed
+import './LoginPage.css';
 
-function LoginPage() {
+export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname;
   const { login } = useAuth();
+
+  const [role, setRole] = useState('customer');
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const handleChange = (e) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
+
     try {
       const res = await login(formData.email, formData.password);
-      if (from) {
+      const userRole = res?.user?.role;
+
+      if (role === 'admin' && userRole !== 'admin') {
+        throw new Error('This account does not have admin access.');
+      }
+      if (role === 'customer' && userRole === 'admin') {
+        throw new Error('Please select Admin Login for this account.');
+      }
+
+      if (from && role === 'customer') {
         navigate(from, { replace: true });
-      } else if (res?.user?.role === 'admin') {
-        navigate('/admin', { replace: true });
       } else {
-        navigate('/', { replace: true });
+        navigate(userRole === 'admin' ? '/admin' : '/', { replace: true });
       }
     } catch (err) {
       setError(err.message || 'Login failed. Please check your credentials.');
@@ -36,39 +46,107 @@ function LoginPage() {
     }
   };
 
+  const isCust = role === 'customer';
+
   return (
-    <div
-      className="min-h-screen flex items-center justify-center p-4 font-inter bg-cover bg-center relative"
-      style={{ backgroundImage: 'url(/Images/login.jpeg)' }}
-    >
-      {/* Optional dark overlay for readability */}
-      <div className="absolute inset-0 bg-black/40" aria-hidden="true"></div>
-      <div className="relative bg-white/90 backdrop-blur-sm w-full max-w-md p-8 rounded-xl shadow-xl">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">Welcome Back</h1>
-          <p className="text-gray-500">Login to continue shopping</p>
+    <div className="login-page">
+      <div className="login-background">
+        <div className="login-overlay" />
+      </div>
+      
+      <div className="login-card">
+        {/* Left Branding Panel with Rich Background */}
+        <div className="login-brand">
+          <div className="brand-content">
+            <span className="brand-small">WELCOME TO</span>
+            <h1>Handcrafted<br /><span>Stories.</span></h1>
+            <p>Discover unique handmade products crafted with passion, creativity, and tradition.</p>
+            <div className="brand-line" />
+            <span className="brand-bottom">SHOP • CREATE • INSPIRE</span>
+          </div>
         </div>
-        {error && <div className="mb-4 text-sm text-red-600 bg-red-50 border border-red-200 rounded p-3">{error}</div>}
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-            <input type="email" name="email" value={formData.email} onChange={handleChange} required placeholder="you@example.com" className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+
+        {/* Right Form Panel */}
+        <div className="login-form-section">
+          <div className="login-header">
+            <h2>Welcome Back</h2>
+            <p>Sign in to continue to your account</p>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-            <input type="password" name="password" value={formData.password} onChange={handleChange} required placeholder="••••••••" className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+
+          {/* Role Selector Tabs */}
+          <div className="role-selector">
+            {['customer', 'admin'].map((r) => (
+              <button
+                key={r}
+                type="button"
+                className={`role-option ${role === r ? 'active' : ''}`}
+                onClick={() => { setRole(r); setError(''); }}
+              >
+                <span className="role-icon">{r === 'customer' ? '🛍️' : '⚙️'}</span>
+                <span className="role-text">
+                  <strong>{r === 'customer' ? 'Customer' : 'Admin'}</strong>
+                  <small>{r === 'customer' ? 'Shop products' : 'Manage store'}</small>
+                </span>
+              </button>
+            ))}
           </div>
-          <div className="text-right">
-            <button type="button" className="text-sm text-blue-600 hover:underline" onClick={() => alert('Reset password flow TBD')}>Forgot Password?</button>
+
+          {error && <div className="login-error"><span>!</span><p>{error}</p></div>}
+
+          <form onSubmit={handleSubmit} className="login-form">
+            <div className="form-group">
+              <label htmlFor="email">Email Address</label>
+              <div className="input-wrapper">
+                <span className="input-icon">✉</span>
+                <input
+                  id="email" type="email" name="email"
+                  value={formData.email} onChange={handleChange}
+                  placeholder="Enter your email" autoComplete="email" required
+                />
+              </div>
+            </div>
+
+            <div className="form-group">
+              <div className="password-label">
+                <label htmlFor="password">Password</label>
+                <button type="button" className="forgot-password" onClick={() => alert('Reset password flow TBD')}>
+                  Forgot Password?
+                </button>
+              </div>
+              <div className="input-wrapper">
+                <span className="input-icon">🔒</span>
+                <input
+                  id="password" type="password" name="password"
+                  value={formData.password} onChange={handleChange}
+                  placeholder="Enter your password" autoComplete="current-password" required
+                />
+              </div>
+            </div>
+
+            <button type="submit" disabled={loading} className={`login-submit ${!isCust ? 'admin-login' : ''}`}>
+              {loading ? (
+                <><span className="loader" />Logging in...</>
+              ) : (
+                <>{isCust ? 'Login as Customer' : 'Login as Admin'}<span className="arrow">→</span></>
+              )}
+            </button>
+          </form>
+
+          {/* Footer Navigation Options */}
+          <div className="auth-footer-links">
+            {isCust ? (
+              <p className="signup-text">
+                Don't have an account? <Link to="/signup">Create an account</Link>
+              </p>
+            ) : (
+              <p className="admin-note">Admin access is restricted to authorized store administrators.</p>
+            )}
+            <div className="login-footer">
+              <span>Secure Login</span> • <span>Your information is protected</span>
+            </div>
           </div>
-          <button type="submit" disabled={loading} className="w-full p-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition disabled:opacity-60">
-            {loading ? 'Logging in...' : 'Login'}
-          </button>
-        </form>
-        <p className="text-sm text-gray-600 mt-6 text-center">Don't have an account? <Link to="/signup" className="text-blue-600 font-medium hover:underline">Create one</Link></p>
+        </div>
       </div>
     </div>
   );
 }
-
-export default LoginPage;

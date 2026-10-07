@@ -34,17 +34,20 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: calc(100vh - 70px); /* Adjust height considering header */
-    background-color: #f0f2f5;
+    min-height: 100vh;
+    background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/Images/login.jpg') no-repeat center center;
+    background-size: cover;
+    padding: 2rem 1rem;
 }
 
 .signup-container {
-    padding: 2rem;
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 2.5rem;
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(4px);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
     width: 100%;
-    max-width: 400px;
+    max-width: 700px;
 }
 
 .signup-title {
@@ -53,21 +56,227 @@
     color: #333;
 }
 
+.signup-title h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.signup-title p {
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
+/* Two column grid for form fields */
+.signup-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+@media (max-width: 640px) {
+    .signup-container {
+        padding: 1.5rem;
+    }
+
+    .signup-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .input-group.full-width,
+    .checkbox-group.full-width,
+    .section-heading,
+    .signup-button-wrapper {
+        grid-column: span 1;
+    }
+}
+
+/* Section headings (Personal details / Delivery address / Security) */
+.section-heading {
+    grid-column: span 2;
+    margin: 0.75rem 0 0;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid #e3e6ea;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.section-heading:first-child {
+    margin-top: 0;
+}
+
 .input-group {
-    margin-bottom: 1rem;
+    margin-bottom: 0;
+}
+
+.input-group.full-width {
+    grid-column: span 2;
 }
 
 .input-group label {
     display: block;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.4rem;
     color: #555;
+    font-size: 0.875rem;
+    font-weight: 500;
 }
 
-.input-group input {
+.input-group .optional {
+    color: #999;
+    font-weight: 400;
+}
+
+.input-group input,
+.input-group select {
     width: 100%;
     padding: 0.75rem;
     border: 1px solid #ccc;
-    border-radius: 4px;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background-color: #fff;
+    box-sizing: border-box;
+}
+
+.input-group input:focus,
+.input-group select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+}
+
+.input-group input.readonly {
+    background-color: #f1f3f5;
+    color: #6c757d;
+    cursor: not-allowed;
+}
+
+/* Validation */
+.input-group.has-error input,
+.input-group.has-error select {
+    border-color: #dc3545;
+}
+
+.input-group.has-error input:focus,
+.input-group.has-error select:focus {
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15);
+}
+
+.field-error {
+    display: block;
+    margin-top: 0.3rem;
+    font-size: 0.78rem;
+    color: #dc3545;
+}
+
+/* Password show/hide */
+.password-wrapper {
+    position: relative;
+}
+
+.password-wrapper input {
+    padding-right: 4.5rem;
+}
+
+.toggle-visibility {
+    position: absolute;
+    top: 50%;
+    right: 0.5rem;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #007bff;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+}
+
+.toggle-visibility:hover {
+    text-decoration: underline;
+}
+
+/* Password strength meter */
+.strength {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 0.4rem;
+}
+
+.strength-bar {
+    flex: 1;
+    height: 6px;
+    background: #e9ecef;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.strength-fill {
+    display: block;
+    height: 100%;
+    transition: width 0.25s, background-color 0.25s;
+}
+
+.strength-fill.level-0,
+.strength-fill.level-1 { background-color: #dc3545; }
+.strength-fill.level-2 { background-color: #fd7e14; }
+.strength-fill.level-3 { background-color: #ffc107; }
+.strength-fill.level-4 { background-color: #28a745; }
+
+.strength small {
+    font-size: 0.75rem;
+    color: #6c757d;
+    min-width: 3.5rem;
+}
+
+/* Checkboxes */
+.checkbox-group {
+    margin: 0;
+}
+
+.checkbox-group.full-width {
+    grid-column: span 2;
+}
+
+.checkbox-group label {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    font-size: 0.85rem;
+    color: #555;
+    cursor: pointer;
+    line-height: 1.4;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: 1rem;
+    height: 1rem;
+    margin-top: 0.15rem;
+    flex-shrink: 0;
+    accent-color: #28a745;
+}
+
+.checkbox-group a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.checkbox-group a:hover {
+    text-decoration: underline;
+}
+
+.checkbox-group.has-error label {
+    color: #dc3545;
+}
+
+/* Submit */
+.signup-button-wrapper {
+    grid-column: span 2;
+    margin-top: 0.5rem;
 }
 
 .signup-button {
@@ -76,27 +285,64 @@
     background-color: #28a745;
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
     font-size: 1rem;
+    font-weight: 600;
+    transition: background-color 0.2s;
 }
 
 .signup-button:hover {
     background-color: #218838;
 }
 
+.signup-button:focus-visible,
+.toggle-visibility:focus-visible {
+    outline: 3px solid rgba(0, 123, 255, 0.4);
+    outline-offset: 2px;
+}
+
+.signup-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.error-message {
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+    color: #dc3545;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 6px;
+    padding: 0.75rem;
+}
+
+.success-message {
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    border-radius: 6px;
+    color: #155724;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
 .login-link {
     text-align: center;
-    margin-top: 1rem;
+    margin-top: 1.25rem;
 }
 
 .login-link p {
     margin: 0;
+    font-size: 0.875rem;
+    color: #6c757d;
 }
 
 .login-link a {
     color: #007bff;
     text-decoration: none;
+    font-weight: 600;
 }
 
 .login-link a:hover {

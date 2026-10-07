@@ -142,10 +142,6 @@ function TrendingProducts() {
                 navigate(`/product/${product._id}`)
               }
             >
-              <div className="product-badge">
-                Bestseller
-              </div>
-
               <ProductCard
                 product={product}
                 img={imageUrl(
@@ -154,12 +150,8 @@ function TrendingProducts() {
                   product.img
                 )}
                 title={product.name || product.title}
-                price={
-                  product.price
-                    ? `₹${product.price}`
-                    : product.price
-                }
-                tag={null}
+                price={product.price}
+                tag="Bestseller"
               />
             </div>
           ))}

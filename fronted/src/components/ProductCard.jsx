@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./ProductCard.css";
 import { useWishlist } from "../context/WishlistContext";
 import { useCart } from "../context/CartContext";
@@ -32,9 +33,26 @@ function getImages(product, img) {
   return [...uniqueImages, ...rotatedFallbacks].slice(0, 5);
 }
 
+function formatPrice(value) {
+  if (value === null || value === undefined || value === "") {
+    return "₹0";
+  }
+
+  const text = String(value).trim();
+  if (text.includes("₹")) {
+    return text;
+  }
+
+  const numericValue = Number(text);
+  return Number.isFinite(numericValue)
+    ? `₹${numericValue.toFixed(0)}`
+    : `₹${text}`;
+}
+
 function ProductCard({ img, title, price, tag, product }) {
   const { isWishlisted, toggleWishlist } = useWishlist();
   const { addToCart } = useCart();
+  const navigate = useNavigate();
   const images = getImages(product, img);
   const [activeImage, setActiveImage] = useState(images[0]);
   const saved = product?._id ? isWishlisted(product._id) : false;
@@ -58,6 +76,14 @@ function ProductCard({ img, title, price, tag, product }) {
   function handleAddToCart(event) {
     event.stopPropagation();
     if (product) addToCart(product);
+  }
+
+  function handleBuyNow(event) {
+    event.stopPropagation();
+    if (product && product.stock !== 0) {
+      addToCart(product);
+      navigate("/checkout");
+    }
   }
 
   return (
@@ -167,7 +193,7 @@ function ProductCard({ img, title, price, tag, product }) {
         </div>
         <div className="product-price">
           <strong>
-            {typeof price === "number" ? `₹${price.toFixed(0)}` : price}
+            {formatPrice(price)}
           </strong>
           {originalPrice && <del>₹{Number(originalPrice).toFixed(0)}</del>}
           {discount > 0 && <span>{discount}% OFF</span>}
@@ -187,11 +213,11 @@ function ProductCard({ img, title, price, tag, product }) {
           </button>
           <button
             type="button"
-            className={`icon-action ${saved ? "saved" : ""}`}
-            onClick={handleWishlistClick}
-            aria-label="Add to wishlist"
+            className="buy-now-button"
+            onClick={handleBuyNow}
+            disabled={!product || product.stock === 0}
           >
-            <i className={saved ? "bx bxs-heart" : "bx bx-heart"}></i>
+            <i className="bx bxs-bolt"></i> Buy Now
           </button>
         </div>
       </div>
