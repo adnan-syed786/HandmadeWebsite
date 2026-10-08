@@ -107,12 +107,7 @@ export default function LoginPage() {
             </div>
 
             <div className="form-group">
-              <div className="password-label">
-                <label htmlFor="password">Password</label>
-                <button type="button" className="forgot-password" onClick={() => alert('Reset password flow TBD')}>
-                  Forgot Password?
-                </button>
-              </div>
+              <label htmlFor="password">Password</label>
               <div className="input-wrapper">
                 <span className="input-icon">🔒</span>
                 <input

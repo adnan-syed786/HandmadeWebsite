@@ -507,13 +507,14 @@ function ShopPage() {
             MOBILE CONTROLS
         ========================== */}
         <div className="mobile-shop-controls">
-          <Link
+          <button
+            type="button"
             className="shop-filter-link"
-            to={`/filters${window.location.search}`}
+            onClick={() => setFiltersOpen(true)}
           >
             <i className="bx bx-filter-alt" />
             Filter
-          </Link>
+          </button>
 
           <label>
             <span>Sort</span>
@@ -532,6 +533,15 @@ function ShopPage() {
             SHOP LAYOUT
         ========================== */}
         <div className="shop-layout">
+          <aside className={`shop-sidebar ${filtersOpen ? "is-open" : ""}`}>
+            <div
+              className="mobile-filter-backdrop"
+              onClick={() => setFiltersOpen(false)}
+              aria-hidden="true"
+            />
+            {renderFilters()}
+          </aside>
+
           {/* RESULTS */}
           <section className="shop-results" aria-live="polite">
             {/* =========================
@@ -549,7 +559,11 @@ function ShopPage() {
               <div className="results-toolbar-actions">
                 <Link
                   className="desktop-filter-link"
-                  to={`/filters${window.location.search}`}
+                  to="#shop-filters"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    setFiltersOpen(true);
+                  }}
                 >
                   <i className="bx bx-filter-alt" /> Filters
                 </Link>

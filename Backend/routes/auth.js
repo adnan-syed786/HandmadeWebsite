@@ -18,8 +18,14 @@ router.post(
     body("email", "Enter a valid email").isEmail(),
     body("phoneNumber", "Enter a valid phone number").isLength({ min: 10 }),
     body("address", "Enter a valid address").isLength({ min: 5 }),
+    body("gender", "Select a valid gender").isIn([
+      "male",
+      "female",
+    ]),
     body("city", "Enter a valid city").isLength({ min: 2 }),
+    body("state", "Select a state").notEmpty(),
     body("zipCode", "Enter a valid ZIP code").isLength({ min: 5 }),
+    body("country", "Enter a valid country").notEmpty(),
     body("password", "Password must be at least 5 characters").isLength({
       min: 5,
     }),
@@ -54,8 +60,12 @@ router.post(
         email: req.body.email,
         phoneNumber: req.body.phoneNumber,
         address: req.body.address,
+        addressLine2: req.body.addressLine2 || "",
         city: req.body.city,
+        state: req.body.state,
         zipCode: req.body.zipCode,
+        country: req.body.country,
+        gender: req.body.gender,
         password: secPass,
         role,
       });
