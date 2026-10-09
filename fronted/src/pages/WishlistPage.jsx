@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -11,6 +11,19 @@ export default function WishlistPage() {
   const { items, removeFromWishlist } = useWishlist();
   const { addToCart } = useCart();
   const navigate = useNavigate();
+  const [cartMessage, setCartMessage] = useState('');
+
+  useEffect(() => {
+    if (!cartMessage) return undefined;
+
+    const timeout = window.setTimeout(() => setCartMessage(''), 3000);
+    return () => window.clearTimeout(timeout);
+  }, [cartMessage]);
+
+  function handleAddToCart(product) {
+    addToCart(product);
+    setCartMessage(`${product.name} added to cart.`);
+  }
 
   return (
     <div>
@@ -23,6 +36,12 @@ export default function WishlistPage() {
           </div>
           <span>{items.length} {items.length === 1 ? 'item' : 'items'}</span>
         </div>
+        {cartMessage && (
+          <div className="wishlist-cart-message" role="status" aria-live="polite">
+            <i className="bx bx-check-circle"></i>
+            <span>{cartMessage}</span>
+          </div>
+        )}
 
         {!items.length ? (
           <div className="wishlist-empty">
@@ -54,7 +73,7 @@ export default function WishlistPage() {
                 <div className="wishlist-card-content">
                   <h2>{product.name}</h2>
                   <p>₹{Number(product.price).toFixed(2)}</p>
-                  <button type="button" className="wishlist-cart-button" onClick={() => addToCart(product)}>
+                  <button type="button" className="wishlist-cart-button" onClick={() => handleAddToCart(product)}>
                     <i className="bx bx-cart-add"></i>
                     Add to cart
                   </button>
