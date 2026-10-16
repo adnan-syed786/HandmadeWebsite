@@ -29,6 +29,22 @@
 
 .wishlist-heading > span { color: #777; font-size: 14px; }
 
+.wishlist-cart-message {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: -12px 0 24px;
+  padding: 13px 16px;
+  border: 1px solid #b8dfc4;
+  border-radius: 10px;
+  background: #effaf2;
+  color: #23753a;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.wishlist-cart-message i { font-size: 20px; }
+
 .wishlist-empty {
   padding: 76px 24px;
   border: 1px solid #ece8e1;

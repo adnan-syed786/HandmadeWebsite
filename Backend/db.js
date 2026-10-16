@@ -1,14 +1,20 @@
 const mongoose = require('mongoose');
 require('dotenv').config();
 
-const mongoURI = process.env.MONGO_URI || "mongodb://localhost:27017/orion_crafts";
+const mongoURI = process.env.MONGO_URI;
+const mongoDbName = process.env.MONGO_DB_NAME || 'orion_crafts';
 const connectToMongo = async () => {
   try {
+    if (!mongoURI) {
+      throw new Error("MONGO_URI is not configured. Set it to your MongoDB Atlas connection string.");
+    }
+
     await mongoose.connect(mongoURI, {
-      useNewUrlParser: true, 
-      useUnifiedTopology: true
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      dbName: mongoDbName
     });
-    console.log("✅ Connected to MongoDB successfully");
+    console.log(`✅ Connected to MongoDB successfully (database: ${mongoDbName})`);
   } catch (error) {
     console.error("❌ MongoDB connection failed:", error);
     process.exit(1);
