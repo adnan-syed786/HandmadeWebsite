@@ -68,6 +68,20 @@ cd fronted
 npm run dev
 ```
 
+### Add products to MongoDB
+
+Connecting the backend to MongoDB does not automatically create product
+documents. To add the sample products once, run:
+
+```bash
+cd Backend
+npm run seed:products
+```
+
+The seed command is safe to repeat and skips insertion when products already
+exist. To import all products from `fronted/product.json` instead, use
+`npm run import:products`.
+
 ## Technologies Used
 
 ### Backend

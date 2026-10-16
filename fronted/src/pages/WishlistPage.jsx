@@ -74,7 +74,7 @@ export default function WishlistPage() {
                   <h2>{product.name}</h2>
                   <p>₹{Number(product.price).toFixed(2)}</p>
                   <button type="button" className="wishlist-cart-button" onClick={() => handleAddToCart(product)}>
-                    <i className="bx bx-cart-add"></i>
+                      <i className="bx bx-cart-add"></i>
                     Add to cart
                   </button>
                 </div>

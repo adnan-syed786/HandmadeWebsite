@@ -6,6 +6,8 @@
     "dev": "nodemon index.js",
     "start": "node index.js",
     "create-admin": "node scripts/createAdmin.js",
+    "seed:products": "node scripts/seed.js",
+    "import:products": "node scripts/importFromJson.js",
     "sync-product-images": "node scripts/syncProductImages.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
