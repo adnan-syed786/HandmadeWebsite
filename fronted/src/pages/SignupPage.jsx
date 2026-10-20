@@ -1,7 +1,10 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import "./SignupPage.css";
+import { z } from "zod";
 
 const STATES = [
   "Andhra Pradesh",
@@ -57,35 +60,41 @@ const INITIAL_FORM = {
   confirmPassword: "",
 };
 
-const validate = (form) => {
-  const errors = {};
-  const phone = form.phoneNumber.replace(/[\s\-+()]/g, "").replace(/^91/, "");
-  if (form.name.trim().length < 2) errors.name = "Enter your full name.";
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-    errors.email = "Enter a valid email address.";
-  }
-  if (!/^[6-9]\d{9}$/.test(phone)) {
-    errors.phoneNumber = "Enter a valid 10-digit mobile number.";
-  }
-  if (!form.gender) errors.gender = "Select an option.";
-  if (form.address.trim().length < 5) {
-    errors.address = "Enter your house number and street.";
-  }
-  if (form.city.trim().length < 2) errors.city = "Enter your city.";
-  if (!form.state) errors.state = "Select your state.";
-  if (!/^[1-9]\d{5}$/.test(form.zipCode)) {
-    errors.zipCode = "Enter a valid 6-digit PIN code.";
-  }
-  if (form.password.length < 8) {
-    errors.password = "Use at least 8 characters.";
-  } else if (!/[A-Za-z]/.test(form.password) || !/\d/.test(form.password)) {
-    errors.password = "Include at least one letter and one number.";
-  }
-  if (form.password !== form.confirmPassword) {
-    errors.confirmPassword = "Passwords do not match.";
-  }
-  return errors;
-};
+// Keep all signup validation in one schema so the form and submit handler share the same rules.
+const signupSchema = z
+  .object({
+    name: z.string().trim().min(2, "Enter your full name."),
+    email: z
+      .string()
+      .trim()
+      .regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Enter a valid email address."),
+    phoneNumber: z.string().refine(
+      (value) =>
+        /^[6-9]\d{9}$/.test(
+          value.replace(/[\s\-+()]/g, "").replace(/^91/, "")
+        ),
+      "Enter a valid 10-digit mobile number."
+    ),
+    gender: z.string().min(1, "Select an option."),
+    address: z.string().trim().min(5, "Enter your house number and street."),
+    addressLine2: z.string(),
+    city: z.string().trim().min(2, "Enter your city."),
+    state: z.string().min(1, "Select your state."),
+    zipCode: z
+      .string()
+      .regex(/^[1-9]\d{5}$/, "Enter a valid 6-digit PIN code."),
+    country: z.string(),
+    password: z
+      .string()
+      .min(8, "Use at least 8 characters.")
+      .regex(/[A-Za-z]/, "Include at least one letter and one number.")
+      .regex(/\d/, "Include at least one letter and one number."),
+    confirmPassword: z.string().min(1, "Passwords do not match."),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "Passwords do not match.",
+  });
 
 const passwordStrength = (password) => {
   const score = [
@@ -115,46 +124,36 @@ function Field({ name, label, error, fullWidth = false, children }) {
 function SignupPage() {
   const navigate = useNavigate();
   const { signup } = useAuth();
-  const [form, setForm] = useState(INITIAL_FORM);
-  const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ error: "", success: "" });
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm({
+    defaultValues: INITIAL_FORM,
+    // Zod supplies field errors to React Hook Form through the resolver.
+    resolver: zodResolver(signupSchema),
+    mode: "onBlur",
+  });
+  const password = watch("password", "");
+  const strength = passwordStrength(password);
 
-  const maxDob = new Date(new Date().setFullYear(new Date().getFullYear() - 18))
-    .toISOString()
-    .split("T")[0];
-  const strength = passwordStrength(form.password);
-
-  const updateField = (event) => {
-    const { name, value } = event.target;
-    const nextValue =
-      name === "zipCode" ? value.replace(/\D/g, "").slice(0, 6) : value;
-    setForm((current) => ({ ...current, [name]: nextValue }));
-    if (errors[name]) setErrors((current) => ({ ...current, [name]: "" }));
-  };
-
-  const submit = async (event) => {
-    event.preventDefault();
+  const submit = async (data) => {
     setMessage({ error: "", success: "" });
-    const nextErrors = validate(form);
-    setErrors(nextErrors);
-    if (Object.keys(nextErrors).length) {
-      setMessage({ error: "Please fix the highlighted fields.", success: "" });
-      return;
-    }
-
     setLoading(true);
     try {
-      const signupData = { ...form };
+      const signupData = { ...data };
       delete signupData.confirmPassword;
       await signup({
         ...signupData,
-        name: form.name.trim(),
-        email: form.email.trim().toLowerCase(),
-        phoneNumber: form.phoneNumber.replace(/[\s\-()]/g, ""),
-        address: form.address.trim(),
-        addressLine2: form.addressLine2.trim(),
+        name: data.name.trim(),
+        email: data.email.trim().toLowerCase(),
+        phoneNumber: data.phoneNumber.replace(/[\s\-()]/g, ""),
+        address: data.address.trim(),
+        addressLine2: data.addressLine2.trim(),
       });
       setMessage({
         error: "",
@@ -176,10 +175,7 @@ function SignupPage() {
   const input = (name, options = {}) => (
     <input
       id={name}
-      name={name}
-      value={form[name]}
-      onChange={updateField}
-      required={options.required !== false}
+      {...register(name)}
       {...options}
     />
   );
@@ -203,15 +199,21 @@ function SignupPage() {
           </div>
         )}
 
-        <form onSubmit={submit} className="signup-grid" noValidate>
+        <form
+          onSubmit={handleSubmit(submit, () =>
+            setMessage({ error: "Please fix the highlighted fields.", success: "" })
+          )}
+          className="signup-grid"
+          noValidate
+        >
           <h2 className="section-heading">Personal details</h2>
-          <Field name="name" label="Full Name" error={errors.name} fullWidth>
+          <Field name="name" label="Full Name" error={errors.name?.message} fullWidth>
             {input("name", {
               autoComplete: "name",
               placeholder: "Rajesh Kumar",
             })}
           </Field>
-          <Field name="email" label="Email Address" error={errors.email}>
+          <Field name="email" label="Email Address" error={errors.email?.message}>
             {input("email", {
               type: "email",
               autoComplete: "email",
@@ -221,7 +223,7 @@ function SignupPage() {
           <Field
             name="phoneNumber"
             label="Mobile Number"
-            error={errors.phoneNumber}
+            error={errors.phoneNumber?.message}
           >
             {input("phoneNumber", {
               type: "tel",
@@ -229,13 +231,10 @@ function SignupPage() {
               placeholder: "+91 98765 43210",
             })}
           </Field>
-          <Field name="gender" label="Gender" error={errors.gender}>
+          <Field name="gender" label="Gender" error={errors.gender?.message}>
             <select
-              name="gender"
               id="gender"
-              value={form.gender}
-              onChange={updateField}
-              required
+              {...register("gender")}
             >
               <option value="">Select</option>
               <option value="male">Male</option>
@@ -247,7 +246,7 @@ function SignupPage() {
           <Field
             name="address"
             label="Address Line 1"
-            error={errors.address}
+            error={errors.address?.message}
             fullWidth
           >
             {input("address", {
@@ -270,19 +269,16 @@ function SignupPage() {
               required: false,
             })}
           </Field>
-          <Field name="city" label="City" error={errors.city}>
+          <Field name="city" label="City" error={errors.city?.message}>
             {input("city", {
               autoComplete: "address-level2",
               placeholder: "Mumbai",
             })}
           </Field>
-          <Field name="state" label="State / UT" error={errors.state}>
+          <Field name="state" label="State / UT" error={errors.state?.message}>
             <select
-              name="state"
               id="state"
-              value={form.state}
-              onChange={updateField}
-              required
+              {...register("state")}
             >
               <option value="">Select state</option>
               {STATES.map((state) => (
@@ -292,7 +288,7 @@ function SignupPage() {
               ))}
             </select>
           </Field>
-          <Field name="zipCode" label="PIN Code" error={errors.zipCode}>
+          <Field name="zipCode" label="PIN Code" error={errors.zipCode?.message}>
             {input("zipCode", {
               inputMode: "numeric",
               autoComplete: "postal-code",
@@ -304,7 +300,7 @@ function SignupPage() {
           </Field>
 
           <h2 className="section-heading">Security</h2>
-          <Field name="password" label="Password" error={errors.password}>
+          <Field name="password" label="Password" error={errors.password?.message}>
             <div className="password-wrapper">
               {input("password", {
                 type: showPassword ? "text" : "password",
@@ -319,7 +315,7 @@ function SignupPage() {
                 {showPassword ? "Hide" : "Show"}
               </button>
             </div>
-            {form.password && (
+            {password && (
               <div className="strength" aria-live="polite">
                 <div className="strength-bar">
                   <span
@@ -334,7 +330,7 @@ function SignupPage() {
           <Field
             name="confirmPassword"
             label="Confirm Password"
-            error={errors.confirmPassword}
+            error={errors.confirmPassword?.message}
           >
             {input("confirmPassword", {
               type: showPassword ? "text" : "password",
